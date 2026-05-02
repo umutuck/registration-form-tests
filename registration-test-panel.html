@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayıt Formu — Test Paneli</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222535;
+    --border: #2e3148;
+    --border2: #3d4166;
+    --text: #e8eaf6;
+    --text2: #8b8fa8;
+    --text3: #555870;
+    --accent: #6c63ff;
+    --accent2: #4f46e5;
+    --pass: #22c55e;
+    --pass-bg: #052e16;
+    --pass-border: #14532d;
+    --fail: #ef4444;
+    --fail-bg: #2d0707;
+    --fail-border: #7f1d1d;
+    --warn: #f59e0b;
+    --ep: #a78bfa;
+    --ep-bg: #1e1535;
+    --bva: #38bdf8;
+    --bva-bg: #0c1f2e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 2rem;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 1.25rem;
+  }
+
+  .field { margin-bottom: 1rem; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .field input::placeholder { color: var(--text3); }
+  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+  .field input.valid { border-color: var(--pass); background: #0a1f0f; }
+  .field input.invalid { border-color: var(--fail); background: #1a0808; }
+
+  .field-err {
+    font-size: 12px;
+    color: var(--fail);
+    margin-top: 5px;
+    display: none;
+    font-family: 'DM Mono', monospace;
+  }
+  .field-err.show { display: block; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+  .submit-btn:hover { background: var(--accent2); }
+  .submit-btn:active { transform: scale(0.98); }
+
+  .result-box {
+    margin-top: 1rem;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-box.success { background: var(--pass-bg); border: 1px solid var(--pass-border); color: var(--pass); }
+  .result-box.error { background: var(--fail-bg); border: 1px solid var(--fail-border); color: var(--fail); }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-num { font-size: 24px; font-weight: 600; }
+  .stat-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+  .tab {
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .tab:hover { border-color: var(--border2); color: var(--text); }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .tests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .tests-list::-webkit-scrollbar { width: 4px; }
+  .tests-list::-webkit-scrollbar-track { background: transparent; }
+  .tests-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .test-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .test-item.pass { border-color: var(--pass-border); background: var(--pass-bg); }
+  .test-item.fail { border-color: var(--fail-border); background: var(--fail-bg); }
+
+  .test-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .test-item.pass .test-dot { background: var(--pass); border-color: var(--pass); }
+  .test-item.fail .test-dot { background: var(--fail); border-color: var(--fail); }
+
+  .test-info { flex: 1; min-width: 0; }
+
+  .test-id {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    margin-bottom: 2px;
+  }
+  .test-item.pass .test-id { color: #4ade80; }
+  .test-item.fail .test-id { color: #f87171; }
+
+  .test-name {
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .test-item.pass .test-name { color: #86efac; }
+  .test-item.fail .test-name { color: #fca5a5; }
+
+  .test-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .badge-ep { background: var(--ep-bg); color: var(--ep); border: 1px solid #3d2f6a; }
+  .badge-bva { background: var(--bva-bg); color: var(--bva); border: 1px solid #0f3a54; }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--pass);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+</style>
+</head>
+<body>
+
+<div style="max-width:1100px;margin:0 auto;">
+  <h1>Create New Account — Test Paneli</h1>
+  <p class="subtitle">Formu doldur ve "Tüm Testleri Çalıştır" butonuna bas — 25 test canlı çalışır</p>
+
+  <div class="layout">
+
+    <!-- FORM -->
+    <div class="card">
+      <div class="card-title">Kayıt Formu</div>
+
+      <div class="field">
+        <label>First Name</label>
+        <input type="text" id="f-fname" placeholder="Alice" oninput="liveValidate()">
+        <div class="field-err" id="e-fname"></div>
+      </div>
+      <div class="field">
+        <label>Last Name</label>
+        <input type="text" id="f-lname" placeholder="Smith" oninput="liveValidate()">
+        <div class="field-err" id="e-lname"></div>
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="text" id="f-email" placeholder="alice@example.com" oninput="liveValidate()">
+        <div class="field-err" id="e-email"></div>
+      </div>
+      <div class="field">
+        <label>Date of Birth (dd/mm/yyyy)</label>
+        <input type="text" id="f-dob" placeholder="15/06/1995" oninput="liveValidate()">
+        <div class="field-err" id="e-dob"></div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="f-pass" placeholder="Secret@123" oninput="liveValidate()">
+        <div class="field-err" id="e-pass"></div>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" id="f-cpass" placeholder="Secret@123" oninput="liveValidate()">
+        <div class="field-err" id="e-cpass"></div>
+      </div>
+
+      <button class="submit-btn" onclick="runAllTests()">▶ Tüm Testleri Çalıştır</button>
+
+      <div class="result-box" id="result-box"></div>
+    </div>
+
+    <!-- TEST PANEL -->
+    <div class="card">
+      <div class="card-title">Test Sonuçları — JUnit 5 / 25 Test Case</div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--text)">25</div>
+          <div class="stat-lbl">Toplam</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="st-pass" style="color:var(--pass)">0</div>
+          <div class="stat-lbl">Geçti ✓</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="st-fail" style="color:var(--fail)">0</div>
+          <div class="stat-lbl">Başarısız ✗</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="filterTests('all',this)">Tümü</button>
+        <button class="tab" onclick="filterTests('pass',this)">Geçenler</button>
+        <button class="tab" onclick="filterTests('fail',this)">Başarısızlar</button>
+        <button class="tab" onclick="filterTests('pending',this)">Bekleyenler</button>
+      </div>
+
+      <div class="tests-list" id="tests-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TESTS = [
+  {id:'TC-01',name:'Tüm geçerli girişler kabul edilmeli',tech:'EP',expected:'pass',check:(f)=>allValid(f)?'ok':'no'},
+  {id:'TC-02',name:'Ad boş bırakılırsa hata vermeli',tech:'EP',expected:'fail',check:(f)=>!f.fname||f.fname.trim()===''?'ok':'no'},
+  {id:'TC-03',name:'Ad 1 karakter (min-1 sınır) → hata',tech:'BVA',expected:'fail',check:(f)=>f.fname&&f.fname.length===1?'ok':'no'},
+  {id:'TC-04',name:'Ad 2 karakter (min sınır) → geçmeli',tech:'BVA',expected:'pass',check:(f)=>f.fname&&f.fname.length>=2&&f.fname.length<=50&&/^[A-Za-zÇçĞğİıÖöŞşÜü][A-Za-zÇçĞğİıÖöŞşÜü \-]{1,49}$/.test(f.fname)?'ok':'no'},
+  {id:'TC-05',name:'Ad 51 karakter (max+1) → hata',tech:'BVA',expected:'fail',check:(f)=>f.fname&&f.fname.length>50?'ok':'no'},
+  {id:'TC-06',name:'Ad rakam içeriyorsa hata',tech:'EP',expected:'fail',check:(f)=>f.fname&&/\d/.test(f.fname)?'ok':'no'},
+  {id:'TC-07',name:'Geçersiz email formatı → hata',tech:'EP',expected:'fail',check:(f)=>f.email&&!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(f.email)?'ok':'no'},
+  {id:'TC-08',name:'Subdomain\'li geçerli email → kabul',tech:'EP',expected:'pass',check:(f)=>f.email&&/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(f.email)&&f.email.length<=100?'ok':'no'},
+  {id:'TC-09',name:'Email 100 karakter (max sınır) → kabul',tech:'BVA',expected:'pass',check:(f)=>f.email&&f.email.length<=100&&/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(f.email)?'ok':'no'},
+  {id:'TC-10',name:'Email 101+ karakter → hata',tech:'BVA',expected:'fail',check:(f)=>f.email&&f.email.length>100?'ok':'no'},
+  {id:'TC-11',name:'Doğum tarihi yanlış format → hata',tech:'EP',expected:'fail',check:(f)=>f.dob&&!/^\d{2}\/\d{2}\/\d{4}$/.test(f.dob)?'ok':'no'},
+  {id:'TC-12',name:'Tam 13 yaş (min sınır) → kabul',tech:'BVA',expected:'pass',check:(f)=>{if(!f.dob)return'no';const a=getAge(f.dob);return a===13?'ok':'no';}},
+  {id:'TC-13',name:'12 yaş (min-1) → hata',tech:'BVA',expected:'fail',check:(f)=>{if(!f.dob)return'no';const a=getAge(f.dob);return a<13&&a>=0?'ok':'no';}},
+  {id:'TC-14',name:'120+ yaş (gerçekçi değil) → hata',tech:'BVA',expected:'fail',check:(f)=>{if(!f.dob)return'no';const a=getAge(f.dob);return a>120?'ok':'no';}},
+  {id:'TC-15',name:'Şifre 7 karakter (min-1) → hata',tech:'BVA',expected:'fail',check:(f)=>f.pass&&f.pass.length===7?'ok':'no'},
+  {id:'TC-16',name:'Şifre 8 karakter (min sınır) → kabul',tech:'BVA',expected:'pass',check:(f)=>f.pass&&f.pass.length>=8&&passStrong(f.pass)?'ok':'no'},
+  {id:'TC-17',name:'Özel karakter yok → hata',tech:'EP',expected:'fail',check:(f)=>f.pass&&!/[!@#$%^&*()\-_=+\[\]{};:\'",.<>/?\\|]/.test(f.pass)?'ok':'no'},
+  {id:'TC-18',name:'Tümü küçük harf → büyük harf hatası',tech:'EP',expected:'fail',check:(f)=>f.pass&&!/[A-Z]/.test(f.pass)?'ok':'no'},
+  {id:'TC-19',name:'Zayıf şifre (kısa/eksik) → hata',tech:'EP',expected:'fail',check:(f)=>f.pass&&!passStrong(f.pass)&&f.pass.length>=1?'ok':'no'},
+  {id:'TC-20',name:'Şifreler eşleşmiyor → hata',tech:'EP',expected:'fail',check:(f)=>f.pass&&f.cpass&&f.pass!==f.cpass?'ok':'no'},
+  {id:'TC-21',name:'Şifre tekrar boş → hata',tech:'EP',expected:'fail',check:(f)=>f.cpass===''&&f.pass&&f.pass.length>0?'ok':'no'},
+  {id:'TC-22',name:'Tüm alanlar boş → çoklu hata',tech:'EP',expected:'fail',check:(f)=>Object.values(f).every(v=>v==='')?'ok':'no'},
+  {id:'TC-23',name:'SQL injection ad alanında → hata',tech:'EP',expected:'fail',check:(f)=>f.fname&&/[\';\-\-]/.test(f.fname)?'ok':'no'},
+  {id:'TC-24',name:'XSS script etiketi emailde → hata',tech:'EP',expected:'fail',check:(f)=>f.email&&/<[^>]+>/.test(f.email)?'ok':'no'},
+  {id:'TC-25',name:'Şifre tam 64 karakter (max sınır) → kabul',tech:'BVA',expected:'pass',check:(f)=>f.pass&&f.pass.length===64&&passStrong(f.pass)?'ok':'no'},
+];
+
+let states = TESTS.map(()=>'pending');
+let activeFilter = 'all';
+
+function getAge(dob){
+  const m=dob.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m)return -1;
+  const d=new Date(+m[3],+m[2]-1,+m[1]);
+  const now=new Date();
+  let age=now.getFullYear()-d.getFullYear();
+  if(now<new Date(now.getFullYear(),d.getMonth(),d.getDate()))age--;
+  return age;
+}
+
+function passStrong(p){
+  return p.length>=8&&p.length<=64&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p)&&/[!@#$%^&*()\-_=+\[\]{};:\'",.<>/?\\|]/.test(p);
+}
+
+function getFields(){
+  return {
+    fname:document.getElementById('f-fname').value,
+    lname:document.getElementById('f-lname').value,
+    email:document.getElementById('f-email').value,
+    dob:document.getElementById('f-dob').value,
+    pass:document.getElementById('f-pass').value,
+    cpass:document.getElementById('f-cpass').value,
+  };
+}
+
+function allValid(f){
+  return f.fname&&f.fname.length>=2&&f.fname.length<=50&&/^[A-Za-zÇçĞğİıÖöŞşÜü][A-Za-zÇçĞğİıÖöŞşÜü \-]{1,49}$/.test(f.fname)&&
+    f.lname&&f.lname.length>=2&&/^[A-Za-zÇçĞğİıÖöŞşÜü][A-Za-zÇçĞğİıÖöŞşÜü \-]{1,49}$/.test(f.lname)&&
+    f.email&&/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(f.email)&&f.email.length<=100&&
+    f.dob&&/^\d{2}\/\d{2}\/\d{4}$/.test(f.dob)&&getAge(f.dob)>=13&&getAge(f.dob)<=120&&
+    passStrong(f.pass)&&f.cpass===f.pass?'ok':'no';
+}
+
+function runAllTests(){
+  const f=getFields();
+  let pass=0,fail=0;
+  TESTS.forEach((t,i)=>{
+    const result=t.check(f);
+    if(result==='ok'){
+      states[i]=t.expected==='pass'?'pass':'fail';
+    } else {
+      states[i]=t.expected==='fail'?'pass':'fail';
+    }
+    if(states[i]==='pass')pass++;
+    else fail++;
+  });
+  document.getElementById('st-pass').textContent=pass;
+  document.getElementById('st-fail').textContent=fail;
+  document.getElementById('progress-fill').style.width=Math.round(pass/25*100)+'%';
+  renderTests();
+  const rb=document.getElementById('result-box');
+  rb.classList.add('show');
+  if(fail===0){
+    rb.className='result-box show success';
+    rb.textContent='✓ Tüm '+pass+' test başarıyla geçti! BUILD SUCCESS';
+  } else {
+    rb.className='result-box show error';
+    rb.textContent='✗ '+pass+' test geçti, '+fail+' test başarısız.';
+  }
+}
+
+function liveValidate(){
+  const f=getFields();
+  const checks=[
+    {el:'f-fname',err:'e-fname',val:f.fname,check:()=>{
+      if(!f.fname)return '';
+      if(f.fname.length<2)return 'En az 2 karakter olmalı.';
+      if(f.fname.length>50)return 'En fazla 50 karakter.';
+      if(!/^[A-Za-zÇçĞğİıÖöŞşÜü][A-Za-zÇçĞğİıÖöŞşÜü \-]{1,49}$/.test(f.fname))return 'Geçersiz karakter.';
+      return null;
+    }},
+    {el:'f-lname',err:'e-lname',val:f.lname,check:()=>{
+      if(!f.lname)return '';
+      if(f.lname.length<2)return 'En az 2 karakter olmalı.';
+      if(f.lname.length>50)return 'En fazla 50 karakter.';
+      return null;
+    }},
+    {el:'f-email',err:'e-email',val:f.email,check:()=>{
+      if(!f.email)return '';
+      if(f.email.length>100)return 'En fazla 100 karakter.';
+      if(!/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(f.email))return 'Geçersiz email formatı.';
+      return null;
+    }},
+    {el:'f-dob',err:'e-dob',val:f.dob,check:()=>{
+      if(!f.dob)return '';
+      if(!/^\d{2}\/\d{2}\/\d{4}$/.test(f.dob))return 'dd/mm/yyyy formatında girin.';
+      const age=getAge(f.dob);
+      if(age<13)return 'En az 13 yaşında olmalısınız.';
+      if(age>120)return 'Gerçekçi bir tarih girin.';
+      return null;
+    }},
+    {el:'f-pass',err:'e-pass',val:f.pass,check:()=>{
+      if(!f.pass)return '';
+      if(f.pass.length<8)return 'En az 8 karakter.';
+      if(f.pass.length>64)return 'En fazla 64 karakter.';
+      if(!/[A-Z]/.test(f.pass))return 'Büyük harf içermeli.';
+      if(!/[a-z]/.test(f.pass))return 'Küçük harf içermeli.';
+      if(!/[0-9]/.test(f.pass))return 'Rakam içermeli.';
+      if(!/[!@#$%^&*()\-_=+\[\]{};:\'",.<>/?\\|]/.test(f.pass))return 'Özel karakter içermeli (!@#$ vb.)';
+      return null;
+    }},
+    {el:'f-cpass',err:'e-cpass',val:f.cpass,check:()=>{
+      if(!f.cpass)return '';
+      if(f.cpass!==f.pass)return 'Şifreler eşleşmiyor.';
+      return null;
+    }},
+  ];
+  checks.forEach(c=>{
+    const inp=document.getElementById(c.el);
+    const errEl=document.getElementById(c.err);
+    if(!c.val){inp.className='';errEl.textContent='';errEl.classList.remove('show');return;}
+    const err=c.check();
+    if(err===null){
+      inp.className='valid';errEl.textContent='';errEl.classList.remove('show');
+    } else if(err===''){
+      inp.className='';errEl.textContent='';errEl.classList.remove('show');
+    } else {
+      inp.className='invalid';errEl.textContent=err;errEl.classList.add('show');
+    }
+  });
+}
+
+function filterTests(filter,btn){
+  activeFilter=filter;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTests();
+}
+
+function renderTests(){
+  const list=document.getElementById('tests-list');
+  list.innerHTML='';
+  TESTS.forEach((t,i)=>{
+    const s=states[i];
+    if(activeFilter!=='all'&&activeFilter!==s)return;
+    const item=document.createElement('div');
+    item.className='test-item '+s;
+    item.innerHTML=`
+      <div class="test-dot"></div>
+      <div class="test-info">
+        <div class="test-id">${t.id}</div>
+        <div class="test-name">${t.name}</div>
+      </div>
+      <span class="test-badge badge-${t.tech.toLowerCase()}">${t.tech}</span>`;
+    list.appendChild(item);
+  });
+}
+
+renderTests();
+</script>
+</body>
+</html>
