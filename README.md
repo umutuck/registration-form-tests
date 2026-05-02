@@ -100,3 +100,4 @@ Checkout → Set up JDK 11 → Compile → Run Tests → Upload Report
 | **Boundary Value Analysis** | Test at exact boundaries (min, max, min-1, max+1) | TC-03/04/05: name length 1,2,51 |
 | **Parameterized Testing** | One test method, multiple data sets | TC-07, TC-19 |
 | **Setup & Teardown** | `@BeforeEach` / `@AfterEach` for resource management | Creates fresh validator per test |
+"# registration-form-tests" 
